@@ -142,6 +142,53 @@ def getProximityShells(
 
     return prox2 - prox1
 
+def get_cm5_corrections(at:list, coords: np.ndarray) -> np.ndarray:
+    """A method to get CM5 corrections for hirshfeld charges.
+
+    Args:
+    at - atomic numbers (list of integers)
+    coords - atomic coordinates (np.ndarray)
+    vdw - atomic van der Waals radii (np.ndarray)
+
+    Returns:
+    cm5_corrections - list of cm5 corrections (np.ndarray)
+    """
+    from kallisto.data import chemical_symbols
+    from kallisto.data import rz
+    from kallisto.data import CM5_dict
+
+    xc = np.zeros((len(at)))
+    
+
+    for i in range(len(at)):
+        at_corr = np.zeros((len(at)))
+        for j in range(len(at)):
+            if i != j:
+                i_sym = chemical_symbols[int(at[i])]
+                j_sym = chemical_symbols[int(at[j])]
+                dij = np.sqrt(np.sum((coords[i]-coords[j])**2))
+                Bkk = np.exp(- 2.833*(1/1.89) * (dij - rz[i_sym] - rz[j_sym]))
+                if (at[i] == "1" and at[j] == "6") or (at[j] == "1" and at[i] == "6"):
+                    Dkk = 0.0502
+                elif (at[i] == "1" and at[j] == "7") or (at[j] == "1" and at[i] == "7"):
+                    Dkk = 0.1747
+                elif (at[i] == "1" and at[j] == "8") or (at[j] == "1" and at[i] == "8"):
+                    Dkk = 0.1671
+                elif (at[i] == "6" and at[j] == "7") or (at[j] == "6" and at[i] == "7"):
+                    Dkk = 0.0556
+                elif (at[i] == "6" and at[j] == "8") or (at[j] == "6" and at[i] == "8"):
+                    Dkk = 0.0234
+                elif (at[i] == "7" and at[j] == "8") or (at[j] == "7" and at[i] == "8"):
+                    Dkk = -0.0346
+                elif all(x in CM5_dict.keys() for x in [i_sym,j_sym]):
+                    Dkk = CM5_dict[i_sym] - CM5_dict[j_sym]
+                else:
+                    Dkk = 0.
+
+                at_corr[j] = Bkk*Dkk
+        xc[i] = np.sum(at_corr)
+
+    return xc
 
 def getAtomicPartialCharges(
     at: np.ndarray, coords: np.ndarray, cns: np.ndarray, charge: int
@@ -200,7 +247,7 @@ def getAtomicPartialCharges(
 
     # X vector
     X = np.zeros(shape=(m,), dtype=np.float64)
-    X[:nat] = -xi + kappa * np.sqrt(cns)
+    X[:nat] = -xi + kappa * np.sqrt(cns) 
 
     # setup Lagragian constraints
     A[:, nat] = 1.0

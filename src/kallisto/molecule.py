@@ -223,18 +223,28 @@ class Molecule(object):
         qs = self.get_eeq(charge)
         return getPolarizabilities(at, covcn, qs, charge)
 
-    def get_eeq(self, charge: int):
+    def get_eeq(self, charge: int, cm5_charges: bool = None):
         """Get atomic electronegativity equilibration partial charges (eeqs).
 
         EEQ values are calculated for a given structure and are returned as an
         array."""
 
         from kallisto.methods import getAtomicPartialCharges
+        from kallisto.methods import get_cm5_corrections
 
         at = self.get_atomic_numbers()
         coords = self.get_positions()
         cns = self.get_cns(cntype="cov")
-        return getAtomicPartialCharges(at, coords, cns, charge)
+        # Get Rahm van der Waals radii in Bohr
+        eeq = getAtomicPartialCharges(at, coords, cns, charge)
+
+        # Correct for cm5 charges
+        cm5_corrections = np.zeros(len(at))
+        if cm5_charges:
+            cm5_corrections = get_cm5_corrections(at, coords)
+            eeq = eeq + cm5_corrections
+
+        return eeq
 
     def writeMolecule(self, name: str, path=cwd):
         """Write molecular structure."""

@@ -16,7 +16,7 @@ numpy = "^1.19.0"
 scipy = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^6.2"
 pytest-cov = {version = "^2.10.0", extras = ["toml"]}
 coverage = {version = "^5.2", extras = ["toml"]}
 black = "^22.1.0"

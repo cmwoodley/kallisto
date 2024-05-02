@@ -25,3 +25,16 @@ def test_eeq_anion():
     eeq = mol.get_eeq(charge)
     assert np.isclose(eeq[0], -0.94103071)
     assert np.isclose(eeq[1], -0.05896929)
+
+
+def test_eeq_cm5():
+    charge = 0
+    mol = ch_radical()
+    cm5_charges = False
+    eeq = mol.get_eeq(charge, cm5_charges)
+    assert np.isclose(eeq[0], -0.17166856127379196)
+    
+    cm5_charges = True
+    eeq = mol.get_eeq(charge, cm5_charges)
+    assert np.isclose(eeq[0], -0.22574798040143743)
+
