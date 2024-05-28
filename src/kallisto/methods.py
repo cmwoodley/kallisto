@@ -153,42 +153,41 @@ def get_cm5_corrections(at:list, coords: np.ndarray) -> np.ndarray:
     Returns:
     cm5_corrections - list of cm5 corrections (np.ndarray)
     """
-    from kallisto.data import chemical_symbols
-    from kallisto.data import rz
-    from kallisto.data import CM5_dict
-
-    xc = np.zeros((len(at)))
     
+    from kallisto.data import chemical_symbols
+    from kallisto.data import ATOMIC_RCOV
+    from kallisto.data import CM5_ATOMIC_PARAMETERS
 
+    # Initialise per atom correction terms array
+    at_corr = np.zeros((len(at), len(at)))
+
+    # Iterate through atom pairs
     for i in range(len(at)):
-        at_corr = np.zeros((len(at)))
-        for j in range(len(at)):
+        for j in range(i, len(at)):
             if i != j:
                 i_sym = chemical_symbols[int(at[i])]
                 j_sym = chemical_symbols[int(at[j])]
+
+                # Calculate Pauling bond order
                 dij = np.sqrt(np.sum((coords[i]-coords[j])**2))
-                Bkk = np.exp(- 2.833*(1/1.89) * (dij - rz[i_sym] - rz[j_sym]))
-                if (at[i] == "1" and at[j] == "6") or (at[j] == "1" and at[i] == "6"):
-                    Dkk = 0.0502
-                elif (at[i] == "1" and at[j] == "7") or (at[j] == "1" and at[i] == "7"):
-                    Dkk = 0.1747
-                elif (at[i] == "1" and at[j] == "8") or (at[j] == "1" and at[i] == "8"):
-                    Dkk = 0.1671
-                elif (at[i] == "6" and at[j] == "7") or (at[j] == "6" and at[i] == "7"):
-                    Dkk = 0.0556
-                elif (at[i] == "6" and at[j] == "8") or (at[j] == "6" and at[i] == "8"):
-                    Dkk = 0.0234
-                elif (at[i] == "7" and at[j] == "8") or (at[j] == "7" and at[i] == "8"):
-                    Dkk = -0.0346
-                elif all(x in CM5_dict.keys() for x in [i_sym,j_sym]):
-                    Dkk = CM5_dict[i_sym] - CM5_dict[j_sym]
+                Bkk = np.exp(- 2.474*(1/1.88973) * (dij - ATOMIC_RCOV[i_sym] - ATOMIC_RCOV[j_sym]))
+
+                # Retrieve CM5 atomic paramters from dict
+                if (i_sym, j_sym) in CM5_ATOMIC_PARAMETERS.keys():
+                    Dkk = CM5_ATOMIC_PARAMETERS[(i_sym, j_sym)]
+                elif (j_sym, i_sym) in CM5_ATOMIC_PARAMETERS.keys():
+                    Dkk = -CM5_ATOMIC_PARAMETERS[(j_sym, i_sym)]
                 else:
-                    Dkk = 0.
+                    Dkk = CM5_ATOMIC_PARAMETERS[i_sym] - CM5_ATOMIC_PARAMETERS[j_sym]
 
-                at_corr[j] = Bkk*Dkk
-        xc[i] = np.sum(at_corr)
+                # Calculate atomic corrections
+                # Atom pairs have negative correction
+                at_corr[i,j] = Bkk*Dkk
+                at_corr[j,i] = -Bkk*Dkk
 
-    return xc
+    # Return per atom sum
+    return np.sum(at_corr, axis=1)
+
 
 def getAtomicPartialCharges(
     at: np.ndarray, coords: np.ndarray, cns: np.ndarray, charge: int

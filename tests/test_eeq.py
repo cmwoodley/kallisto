@@ -1,6 +1,8 @@
 # tests/test_eeq.py
 import numpy as np
 from tests.store import ch_radical
+from tests.store import acetylene
+from tests.store import hydrogenCyanide
 
 
 def test_eeq():
@@ -36,5 +38,15 @@ def test_eeq_cm5():
     
     cm5_charges = True
     eeq = mol.get_eeq(charge, cm5_charges)
-    assert np.isclose(eeq[0], -0.22574798040143743)
+    assert np.isclose(eeq[0], -0.21562044659991492)
 
+    mol = acetylene()
+    cm5_correction = mol.get_eeq(charge, True) - mol.get_eeq(charge, False)
+    assert np.isclose(cm5_correction[0], -0.053, atol=0.002)
+    assert np.isclose(cm5_correction[2], 0.053, atol=0.002)
+
+    mol = hydrogenCyanide()
+    cm5_correction = mol.get_eeq(charge, True) - mol.get_eeq(charge, False)
+    assert np.isclose(cm5_correction[0], 0.067, atol=0.002)
+    assert np.isclose(cm5_correction[1], -0.126, atol=0.002)
+    assert np.isclose(cm5_correction[2], 0.059, atol=0.002)
