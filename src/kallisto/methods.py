@@ -157,9 +157,10 @@ def get_cm5_corrections(at: list, coords: np.ndarray) -> np.ndarray:
     from kallisto.data import chemical_symbols
     from kallisto.data import ATOMIC_RCOV
     from kallisto.data import CM5_ATOMIC_PARAMETERS
+    from kallisto.units import Bohr
 
     # Constant for bond order calculation in Angstrom
-    alpha = -2.474 / 1.88973
+    alpha = -2.474 * Bohr
 
     # Initialise per atom correction terms array
     at_corr = np.zeros((len(at), len(at)))
