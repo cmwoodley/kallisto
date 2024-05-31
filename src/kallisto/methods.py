@@ -142,21 +142,24 @@ def getProximityShells(
 
     return prox2 - prox1
 
-def get_cm5_corrections(at:list, coords: np.ndarray) -> np.ndarray:
+
+def get_cm5_corrections(at: list, coords: np.ndarray) -> np.ndarray:
     """A method to get CM5 corrections for hirshfeld charges.
 
     Args:
     at - atomic numbers (list of integers)
     coords - atomic coordinates (np.ndarray)
-    vdw - atomic van der Waals radii (np.ndarray)
 
     Returns:
     cm5_corrections - list of cm5 corrections (np.ndarray)
     """
-    
+
     from kallisto.data import chemical_symbols
     from kallisto.data import ATOMIC_RCOV
     from kallisto.data import CM5_ATOMIC_PARAMETERS
+
+    # Constant for bond order calculation in Angstrom
+    alpha = -2.474 / 1.88973
 
     # Initialise per atom correction terms array
     at_corr = np.zeros((len(at), len(at)))
@@ -169,21 +172,22 @@ def get_cm5_corrections(at:list, coords: np.ndarray) -> np.ndarray:
                 j_sym = chemical_symbols[int(at[j])]
 
                 # Calculate Pauling bond order
-                dij = np.sqrt(np.sum((coords[i]-coords[j])**2))
-                Bkk = np.exp(- 2.474*(1/1.88973) * (dij - ATOMIC_RCOV[i_sym] - ATOMIC_RCOV[j_sym]))
+                dij = np.sqrt(np.sum((coords[i] - coords[j]) ** 2))
+                Bkk = np.exp(alpha * (dij - ATOMIC_RCOV[i_sym] - ATOMIC_RCOV[j_sym]))
 
                 # Retrieve CM5 atomic paramters from dict
                 if (i_sym, j_sym) in CM5_ATOMIC_PARAMETERS.keys():
                     Dkk = CM5_ATOMIC_PARAMETERS[(i_sym, j_sym)]
                 elif (j_sym, i_sym) in CM5_ATOMIC_PARAMETERS.keys():
+                    # Negative to satisfy Dkk' = -Dk'k
                     Dkk = -CM5_ATOMIC_PARAMETERS[(j_sym, i_sym)]
                 else:
                     Dkk = CM5_ATOMIC_PARAMETERS[i_sym] - CM5_ATOMIC_PARAMETERS[j_sym]
 
                 # Calculate atomic corrections
-                # Atom pairs have negative correction
-                at_corr[i,j] = Bkk*Dkk
-                at_corr[j,i] = -Bkk*Dkk
+                # Atom pairs have negative correction to satisfy Dkk' = -Dk'k
+                at_corr[i, j] = Bkk * Dkk
+                at_corr[j, i] = -Bkk * Dkk
 
     # Return per atom sum
     return np.sum(at_corr, axis=1)
@@ -246,7 +250,7 @@ def getAtomicPartialCharges(
 
     # X vector
     X = np.zeros(shape=(m,), dtype=np.float64)
-    X[:nat] = -xi + kappa * np.sqrt(cns) 
+    X[:nat] = -xi + kappa * np.sqrt(cns)
 
     # setup Lagragian constraints
     A[:, nat] = 1.0

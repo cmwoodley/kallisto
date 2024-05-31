@@ -35,18 +35,17 @@ def test_eeq_cm5():
     cm5_charges = False
     eeq = mol.get_eeq(charge, cm5_charges)
     assert np.isclose(eeq[0], -0.17166856127379196)
-    
+
     cm5_charges = True
     eeq = mol.get_eeq(charge, cm5_charges)
     assert np.isclose(eeq[0], -0.21562044659991492)
 
     mol = acetylene()
+    want = np.array([-0.053, -0.053, 0.053, 0.053])
     cm5_correction = mol.get_eeq(charge, True) - mol.get_eeq(charge, False)
-    assert np.isclose(cm5_correction[0], -0.053, atol=0.002)
-    assert np.isclose(cm5_correction[2], 0.053, atol=0.002)
+    assert np.allclose(cm5_correction, want, atol=0.002)
 
     mol = hydrogenCyanide()
+    want = np.array([0.067, -0.126, 0.059])
     cm5_correction = mol.get_eeq(charge, True) - mol.get_eeq(charge, False)
-    assert np.isclose(cm5_correction[0], 0.067, atol=0.002)
-    assert np.isclose(cm5_correction[1], -0.126, atol=0.002)
-    assert np.isclose(cm5_correction[2], 0.059, atol=0.002)
+    assert np.allclose(cm5_correction, want, atol=0.002)

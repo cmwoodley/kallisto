@@ -472,14 +472,14 @@ def propanolIntermediate():
         atoms.append(Atom(symbols[i], position=coords[i]))
     return Molecule(symbols=atoms)
 
+
 def acetylene():
-    """Create an acetylene molecule and return as a Molecule
-    """
+    """Create an acetylene molecule and return as a Molecule"""
     coords = [
-        [ 1.01512497,  0.29543222,  1.1131942 ],
-        [-1.01512497, -0.29543222,  0.29228772],
-        [ 2.81787834,  0.82008823,  1.84211636],
-        [-2.81787834, -0.82008823, -0.43663256]
+        [1.01512497, 0.29543222, 1.1131942],
+        [-1.01512497, -0.29543222, 0.29228772],
+        [2.81787834, 0.82008823, 1.84211636],
+        [-2.81787834, -0.82008823, -0.43663256],
     ]
 
     symbols = [
@@ -493,40 +493,20 @@ def acetylene():
     for i, _ in enumerate(coords):
         atoms.append(Atom(symbols[i], position=coords[i]))
     return Molecule(symbols=atoms)
+
 
 def hydrogenCyanide():
-    """Create a hydrogen cyanide and return as a Molecule
-    """
+    """Create a hydrogen cyanide and return as a Molecule"""
     coords = [
-        [-0.05934874, -0.00765717, 0.],
-        [ 2.11470369,  0.27291803, 0.],
-        [-2.05535306, -0.26526275, 0.]
+        [-0.05934874, -0.00765717, 0.0],
+        [2.11470369, 0.27291803, 0.0],
+        [-2.05535306, -0.26526275, 0.0],
     ]
 
     symbols = [
         "C",
         "N",
         "H",
-    ]
-
-    atoms = []
-    for i, _ in enumerate(coords):
-        atoms.append(Atom(symbols[i], position=coords[i]))
-    return Molecule(symbols=atoms)
-
-def uraniumCyanide():
-    """Create a hydrogen cyanide and return as a Molecule
-    """
-    coords = [
-        [-0.05934874, -0.00765717, 0.],
-        [ 2.11470369,  0.27291803, 0.],
-        [-2.05535306, -0.26526275, 0.]
-    ]
-
-    symbols = [
-        "C",
-        "N",
-        "U",
     ]
 
     atoms = []

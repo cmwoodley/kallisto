@@ -30,6 +30,9 @@ pytype = {version = "^2020.6.26", python = "3.7"}
 codecov = "^2.1.8"
 typed-ast = "^1.5.4"
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.4"
+
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
