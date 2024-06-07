@@ -40,6 +40,9 @@ def test_eeq_cm5():
     eeq = mol.get_eeq(charge, cm5_charges)
     assert np.isclose(eeq[0], -0.21562044659991492)
 
+    # CM5 Correction Values as published in Table S4 J. Chem. Theory Comput. 2012, 8, 2, 527–541
+    # DOI: 10.1021/ct200866d
+    
     mol = acetylene()
     want = np.array([-0.053, -0.053, 0.053, 0.053])
     cm5_correction = mol.get_eeq(charge, True) - mol.get_eeq(charge, False)
